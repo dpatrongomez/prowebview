@@ -103,6 +103,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1059,7 +1060,7 @@ public class ProWebView extends WebView implements DownloadListener, NestedScrol
             if (hasProtocol(url)) {
                 String scheme = Uri.parse(url).getScheme();
                 if (schemeHashMap.containsKey(scheme)) {
-                    boolean loaded = schemeHashMap.get(scheme).onSchemeRequested(this, url);
+                    boolean loaded = Objects.requireNonNull(schemeHashMap.get(scheme)).onSchemeRequested(this, url);
                     if (!loaded)
                         super.loadUrl(url);
                 } else
@@ -1082,7 +1083,7 @@ public class ProWebView extends WebView implements DownloadListener, NestedScrol
             if (hasProtocol(url)) {
                 String scheme = Uri.parse(url).getScheme();
                 if (schemeHashMap.containsKey(scheme)) {
-                    boolean loaded = schemeHashMap.get(scheme).onSchemeRequested(this, url);
+                    boolean loaded = Objects.requireNonNull(schemeHashMap.get(scheme)).onSchemeRequested(this, url);
                     if (!loaded)
                         super.loadUrl(url, additionalHttpHeaders);
                 } else
@@ -1493,7 +1494,6 @@ public class ProWebView extends WebView implements DownloadListener, NestedScrol
         WebViewDatabase database = WebViewDatabase.getInstance(getContext());
         database.clearHttpAuthUsernamePassword();
         database.clearFormData();
-        database.clearUsernamePassword();
     }
 
     /**
@@ -1616,7 +1616,7 @@ public class ProWebView extends WebView implements DownloadListener, NestedScrol
      * @return hosts in black list
      */
     public String[] getBlacklistedHostsArray() {
-        return blacklist.toArray(new String[blacklist.size()]);
+        return blacklist.toArray(new String[0]);
     }
 
     /**
@@ -1651,7 +1651,7 @@ public class ProWebView extends WebView implements DownloadListener, NestedScrol
      */
     public String[] getBackStackArray() {
         if (!privateMode)
-            return backStack.toArray(new String[backStack.size()]);
+            return backStack.toArray(new String[0]);
         return null;
     }
 
@@ -1673,7 +1673,7 @@ public class ProWebView extends WebView implements DownloadListener, NestedScrol
      */
     public String[] getForwardStackArray() {
         if (!privateMode)
-        return forwardStack.toArray(new String[forwardStack.size()]);
+        return forwardStack.toArray(new String[0]);
         return null;
     }
 
@@ -1724,7 +1724,7 @@ public class ProWebView extends WebView implements DownloadListener, NestedScrol
      * @return console messages
      */
     public ConsoleMessage[] getConsoleMessagesArray() {
-        return consoleMessages.toArray(new ConsoleMessage[consoleMessages.size()]);
+        return consoleMessages.toArray(new ConsoleMessage[0]);
     }
 
     /**
@@ -1989,6 +1989,7 @@ public class ProWebView extends WebView implements DownloadListener, NestedScrol
         });
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     private boolean openFileInput(ValueCallback<Uri> uriCallback, ValueCallback<Uri[]> arrayCallback, WebChromeClient.FileChooserParams fileChooserParams, boolean allowMultiple) {
         if ((activity==null)&&(fragment==null))
             throw new NullPointerException("Must set an activity or a fragment!");
@@ -2122,7 +2123,7 @@ public class ProWebView extends WebView implements DownloadListener, NestedScrol
         protected String doInBackground(String... strings) {
             Uri uri = Uri.parse(strings[0]);
             StringBuilder sb = new StringBuilder();
-            if (uri.getScheme().contains("http")) {
+            if (Objects.requireNonNull(uri.getScheme()).contains("http")) {
                 try {
                     URL url = new URL(strings[0]);
                     BufferedReader in = new BufferedReader(
